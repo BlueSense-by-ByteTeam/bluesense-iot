@@ -12,28 +12,29 @@ PubSubClient client(wifiClient);
 const char *topic = "esp32/dev";
 
 boolean connected = false;
+float tdsVal = 0;
 // median filtering algorithm
 
 void setup()
 {
     Serial.begin(115200);
-
+    phSetup();
+    setupTds();
     // setupWifi();
 
     // client.setServer(mqtt_server, mqtt_port);
     // client.setCallback(callback);
     // client.subscribe(topic);
-    setupTds();
 }
 
 void setupWifi()
 {
-    WiFi.mode(WIFI_STA);
+    // WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
     if (WiFi.waitForConnectResult() != WL_CONNECTED)
     {
         Serial.println("WiFi Failed!\n");
-        return;
+        // return;
     }
 
     connected = WiFi.waitForConnectResult() != WL_CONNECTED;
@@ -76,7 +77,13 @@ void reconnect()
 void loop()
 {
     // printSensorValue();
-    tdsLoop();
+    // tdsLoop(&tdsVal, 500);
+
+    // Serial.print("TDS value: ");
+    // Serial.print(tdsValue);
+    // Serial.println("ppm (in main)");
+
+    phLoop();
     // if (connected)
     // {
     //     Serial.println("test vscode for esp32 connected to wifi");
@@ -94,6 +101,6 @@ void loop()
     // {
     //     client.publish(topic, "datetime");
     // }
-    // client.loop();
-    // delay(500);
+    client.loop();
+    delay(500);
 }

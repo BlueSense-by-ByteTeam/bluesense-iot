@@ -46,7 +46,7 @@ void setupTds()
     pinMode(TdsSensorPin, INPUT);
 }
 
-void tdsLoop()
+void tdsLoop(float *value, int readInterval)
 {
     static unsigned long analogSampleTimepoint = millis();
     if (millis() - analogSampleTimepoint > 40U)
@@ -82,6 +82,8 @@ void tdsLoop()
             Serial.print("TDS Value:");
             Serial.print(tdsValue, 0);
             Serial.println("ppm");
+
+            *value = tdsValue;
         }
     }
 }
