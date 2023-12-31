@@ -5,21 +5,25 @@
 #include "Credentials.h"
 #include "Certificate.h"
 #include "./src/services/sensors/Ph.h"
+#include "./src/services/sensors/Tds.h"
 
 WiFiClientSecure wifiClient;
 PubSubClient client(wifiClient);
 const char *topic = "esp32/dev";
 
 boolean connected = false;
+// median filtering algorithm
+
 void setup()
 {
     Serial.begin(115200);
 
-    setupWifi();
+    // setupWifi();
 
-    client.setServer(mqtt_server, mqtt_port);
-    client.setCallback(callback);
-    client.subscribe(topic);
+    // client.setServer(mqtt_server, mqtt_port);
+    // client.setCallback(callback);
+    // client.subscribe(topic);
+    setupTds();
 }
 
 void setupWifi()
@@ -72,23 +76,24 @@ void reconnect()
 void loop()
 {
     // printSensorValue();
-    if (connected)
-    {
-        Serial.println("test vscode for esp32 connected to wifi");
-    }
-    else
-    {
-        Serial.println("test vscode for esp32 not connected to wifi");
-    }
+    tdsLoop();
+    // if (connected)
+    // {
+    //     Serial.println("test vscode for esp32 connected to wifi");
+    // }
+    // else
+    // {
+    //     Serial.println("test vscode for esp32 not connected to wifi");
+    // }
 
-    if (!client.connected())
-    {
-        reconnect();
-    }
-    else
-    {
-        client.publish(topic, "datetime");
-    }
-    client.loop();
-    delay(500);
+    // if (!client.connected())
+    // {
+    //     reconnect();
+    // }
+    // else
+    // {
+    //     client.publish(topic, "datetime");
+    // }
+    // client.loop();
+    // delay(500);
 }
