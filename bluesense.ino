@@ -1,20 +1,23 @@
+#include <PubSubClient.h>
 
 #include <Arduino.h>
-#include <WiFi.h>
-#include <PubSubClient.h>
+#include <WiFiClientSecure.h>
 #include "Credentials.h"
+#include "Certificate.h"
+#include "./src/services/sensors/Ph.h"
 
-WiFiClient espClient;
-PubSubClient client(espClient);
-const char *topic = "esp32/dev"; // define topic
+WiFiClientSecure wifiClient;
+PubSubClient client(wifiClient);
+const char *topic = "esp32/dev";
 
 boolean connected = false;
 void setup()
 {
     Serial.begin(115200);
+
     setupWifi();
 
-    client.setServer(mqtt_server, 8883);
+    client.setServer(mqtt_server, mqtt_port);
     client.setCallback(callback);
     client.subscribe(topic);
 }
@@ -32,6 +35,7 @@ void setupWifi()
     connected = WiFi.waitForConnectResult() != WL_CONNECTED;
 
     Serial.println(WiFi.localIP());
+    wifiClient.setInsecure();
 }
 
 void callback(char *topic, byte *payload, unsigned int length)
@@ -47,8 +51,27 @@ void callback(char *topic, byte *payload, unsigned int length)
     Serial.println("-----------------------");
 }
 
+void reconnect()
+{
+    while (!client.connected())
+    {
+        String client_id = "esp32-bluesense-";
+        client_id += String(WiFi.macAddress());
+        if (client.connect(client_id.c_str(), mqtt_username, mqtt_password))
+        {
+            Serial.println("Public emqx mqtt broker connected");
+        }
+        else
+        {
+            Serial.println("failed with state ");
+            Serial.println(client.state());
+        }
+    }
+}
+
 void loop()
 {
+    // printSensorValue();
     if (connected)
     {
         Serial.println("test vscode for esp32 connected to wifi");
@@ -58,24 +81,14 @@ void loop()
         Serial.println("test vscode for esp32 not connected to wifi");
     }
 
-    while (!client.connected())
+    if (!client.connected())
     {
-        String client_id = "esp8266-client-";
-        client_id += String(WiFi.macAddress());
-        Serial.printf("The client %s connects to the public mqtt broker\n", client_id.c_str());
-        if (client.connect(client_id.c_str(), mqtt_username, mqtt_password))
-        {
-            Serial.println("Public emqx mqtt broker connected");
-        }
-        else
-        {
-            Serial.print("failed with state ");
-            Serial.print(client.state());
-            delay(2000);
-        }
+        reconnect();
     }
-
-    // char const *datetime = reinterpret_cast<char const *>(millis());
-    client.publish(topic, "datetime");
+    else
+    {
+        client.publish(topic, "datetime");
+    }
+    client.loop();
     delay(500);
 }
