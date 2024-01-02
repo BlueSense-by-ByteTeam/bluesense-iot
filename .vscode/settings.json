@@ -50,5 +50,15 @@
     "streambuf": "cpp",
     "cinttypes": "cpp",
     "typeinfo": "cpp"
-  }
+  },
+  "vsmqtt.brokerProfiles": [
+    {
+      "name": "bluesense",
+      "host": "wss://f2e4701e.ala.us-east-1.emqxsl.com",
+      "port": 8084,
+      "clientId": "vsmqtt_client_8276",
+      "username": "test",
+      "password": "test"
+    }
+  ]
 }

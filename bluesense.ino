@@ -1,6 +1,8 @@
-#include <PubSubClient.h>
+#include <ArduinoJson.h>
 
+#include <PubSubClient.h>
 #include <Arduino.h>
+
 #include <WiFiClientSecure.h>
 #include "Credentials.h"
 #include "Certificate.h"
@@ -13,23 +15,25 @@ const char *topic = "esp32/dev";
 
 boolean connected = false;
 float tdsVal = 0;
+int phVal = 0;
+float voltage = 0;
 // median filtering algorithm
 
 void setup()
 {
     Serial.begin(115200);
-    phSetup();
     setupTds();
-    // setupWifi();
 
-    // client.setServer(mqtt_server, mqtt_port);
-    // client.setCallback(callback);
-    // client.subscribe(topic);
+    setupWifi();
+
+    client.setServer(mqtt_server, mqtt_port);
+    client.setCallback(callback);
+    client.subscribe(topic);
 }
 
 void setupWifi()
 {
-    // WiFi.mode(WIFI_STA);
+    WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
     if (WiFi.waitForConnectResult() != WL_CONNECTED)
     {
@@ -77,30 +81,34 @@ void reconnect()
 void loop()
 {
     // printSensorValue();
-    // tdsLoop(&tdsVal, 500);
+    tdsLoop(&tdsVal);
+    // phLoop(&phVal);
+    // loopPh();
 
     // Serial.print("TDS value: ");
-    // Serial.print(tdsValue);
+    // Serial.print(tdsVal);
     // Serial.println("ppm (in main)");
 
-    phLoop();
-    // if (connected)
-    // {
-    //     Serial.println("test vscode for esp32 connected to wifi");
-    // }
-    // else
-    // {
-    //     Serial.println("test vscode for esp32 not connected to wifi");
-    // }
+    // Serial.print("PH value: ");
+    // Serial.print(phVal);
+    // Serial.println("(in main)");
 
-    // if (!client.connected())
-    // {
-    //     reconnect();
-    // }
-    // else
-    // {
-    //     client.publish(topic, "datetime");
-    // }
+    if (!client.connected())
+    {
+        reconnect();
+    }
+    else
+    {
+        StaticJsonDocument<200> jsonDoc;
+        jsonDoc["tds"] = tdsVal;
+        jsonDoc["ph"] = phVal;
+
+        String jsonString;
+        serializeJson(jsonDoc, jsonString);
+        Serial.println(jsonString);
+
+        client.publish(topic, jsonString.c_str());
+    }
     client.loop();
-    delay(500);
+    delay(1000);
 }
