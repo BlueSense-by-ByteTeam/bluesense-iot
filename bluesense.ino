@@ -100,14 +100,19 @@ void loop()
     else
     {
         StaticJsonDocument<200> jsonDoc;
-        jsonDoc["tds"] = tdsVal;
-        jsonDoc["ph"] = phVal;
+        JsonObject phObj = jsonDoc.createNestedObject("ph");
+        phObj["value"] = phVal;
+        phObj["unit"] = "-";
+
+        JsonObject tdsObj = jsonDoc.createNestedObject("tds");
+        tdsObj["value"] = tdsVal;
+        tdsObj["unit"] = "ppm";
 
         String jsonString;
         serializeJson(jsonDoc, jsonString);
-        Serial.println(jsonString);
-
         client.publish(topic, jsonString.c_str());
+
+        Serial.println(jsonString);
     }
     client.loop();
     delay(1000);
