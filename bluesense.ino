@@ -17,7 +17,8 @@ boolean connected = false;
 float tdsVal = 0;
 int phVal = 0;
 float voltage = 0;
-// median filtering algorithm
+
+String macAddress;
 
 void setup()
 {
@@ -30,7 +31,6 @@ void setup()
     client.setCallback(callback);
     client.subscribe(topic);
 }
-
 void setupWifi()
 {
     WiFi.mode(WIFI_STA);
@@ -40,6 +40,10 @@ void setupWifi()
         Serial.println("WiFi Failed!\n");
         // return;
     }
+
+    macAddress = WiFi.macAddress();
+    macAddress.replace(":", "");
+    Serial.println(macAddress);
 
     connected = WiFi.waitForConnectResult() != WL_CONNECTED;
 
@@ -100,13 +104,9 @@ void loop()
     else
     {
         StaticJsonDocument<200> jsonDoc;
-        JsonObject phObj = jsonDoc.createNestedObject("ph");
-        phObj["value"] = phVal;
-        phObj["unit"] = "-";
-
-        JsonObject tdsObj = jsonDoc.createNestedObject("tds");
-        tdsObj["value"] = tdsVal;
-        tdsObj["unit"] = "ppm";
+        // JsonObject phObj = jsonDoc.createNestedObject("ph");
+        jsonDoc["ph"] = phVal;
+        jsonDoc["tds"] = tdsVal;
 
         String jsonString;
         serializeJson(jsonDoc, jsonString);
