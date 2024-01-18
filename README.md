@@ -18,3 +18,17 @@ This repository contains the source code for the BlueSense IoT device. The devic
 ## Wiring Diagram
 
 ![Bluesense IOT Device Diagram](./diagram/bluesense_iot_diagram.png)
+
+1. To run this project first create Credentials.h file
+2. Filled the file with these data
+
+```c
+const char *ssid = <YOUR WIFI SSID>;
+const char *password = <YOUR WIFI PASSWORD>;
+const char *mqtt_server = <YOUR MQTT BROKER URL>;
+const char *mqtt_username = <YOUR MQTT CLIENT USERNAME>;
+const char *mqtt_password = <YOUR MQTT CLIENT PASSWORD>;
+const int mqtt_port = <YOUR MQTT PORT>;
+const String serverName = "https://bluesense.tech/";
+
+```
